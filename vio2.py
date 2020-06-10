@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-version = '0.1.1-1'
+version = '0.1.1-2'
 
 import sys
 import os.path
@@ -77,9 +77,9 @@ def shell():
     """Интерактивный режим Violetta2."""
     while True:
         print('Выберите опцию:')
-        print('0. Выход')
-        print('1. Преобразовать код Python 3 в псевдокод Violetta2')
-        print('2. Преобразовать псевдокод Violetta2 в код Python 3')
+        print('0.  Выход')
+        print('1.  Преобразовать код Python 3 в псевдокод Violetta2')
+        print('2.  Преобразовать псевдокод Violetta2 в код Python 3')
         try:
             opt = int(input('>>> '))
             if opt not in (0, 1, 2):
@@ -105,17 +105,15 @@ def shell():
 
 def toPython3(filepath):
     """Преобразует файл с именем filepath в код Python 3."""
-    f = opener(filepath)
-    strings = [line for line in f]
-    f.close()
+    with opener(filepath) as f:
+        strings = [line for line in f]
     writer(filepath, replace(strings, {v: k for k, v in translations.items()}), '.py')
 
 
 def toVioletta2(filepath):
     """Преобразует файл с именем filepath в псевдокод Violetta2."""
-    f = opener(filepath)
-    strings = [line for line in f]
-    f.close()
+    with opener(filepath) as f:
+        strings = [line for line in f]
     writer(filepath, replace(strings, translations), '.vio2')
 
 
