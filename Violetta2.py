@@ -1,15 +1,10 @@
 #!/usr/bin/env python3
-# @titoffklim
 
-version = '0.0.2'
+version = '0.0.3'
 
-# Подключаем библиотеки:
-# 1) системная библиотека - понадобится для получения аргументов командной строки
 import sys
-# 2) библиотека для работы с путями в файловой системе
 import os.path
 
-# Все замены, которые мы делаем:
 translations = {
     'print': 'вывести',
     'input': 'ввести',
@@ -73,44 +68,77 @@ translations = {
     'close': 'закрыть'
 }
 
-# Процедура shell, которая вызывается для интерактивного режима. Вы должны ввести путь к файлу, выбрать направление перевода, и транслятор переведёт ваш код, сохранив его в файле с таким же названием, но другим расширением.
-def shell():
-    pass
 
-# Процедура toPython3, которая принимает filepath - путь к файлу, - открывает его, переводит, создаёт новый файл с расширением .py и записывает перевод.
+def shell():
+    """Интерактивный режим Violetta2."""
+    while True:
+        print('Выберите опцию:')
+        print('0. Выход')
+        print('1. Преобразовать код Python 3 в псевдокод Violetta2')
+        print('2. Преобразовать псевдокод Violetta2 в код Python 3')
+        try:
+            opt = int(input('>>> '))
+            if opt not in (0, 1, 2):
+                raise ValueError
+            if opt == 1:
+                print('\tВведите имя файла, содержащего код на Python 3:')
+                filename = input('\t>>> ')
+                toVioletta2(filename)
+                print('\tПреобразование завершено.')
+            elif opt == 2:
+                print('\tВведите имя файла, содержащего псевдокод Violetta2:')
+                filename = input('\t>>> ')
+                toPython3(filename)
+                print('\tПреобразование завершено.')
+            else:
+                return
+        except ValueError:
+            print('Ошибка! Введите число, соответствующее опции.')
+        except KeyboardInterrupt:
+            print()
+            break
+
+
 def toPython3(filepath):
+    """Преобразует файл с именем filepath в код Python 3."""
     f = opener(filepath)
     strings = [line for line in f]
     f.close()
     writer(filepath, replace(strings, {v: k for k, v in translations.items()}), '.py')
 
-# Процедура toVioletta2, которая принимает filepath, открывает его, переводит, создаёт новый файл с расширением .vio2 и записывает перевод.
+
 def toVioletta2(filepath):
+    """Преобразует файл с именем filepath в псевдокод Violetta2."""
     f = opener(filepath)
     strings = [line for line in f]
     f.close()
-    writer(filepath, replace(strings, translations), '.vio2')    
+    writer(filepath, replace(strings, translations), '.vio2')
+
 
 def opener(filepath):
+    """Открывает файл и возвращает его."""
     try:
         f = open(filepath)
         return f
-    except:
+    except FileNotFoundError:
         print('Такого файла не существует.')
         sys.exit(1)
 
+
 def writer(sourcefilepath, strings, extension):
+    """Записывает изменения в файл."""
     try:
         newpath = os.path.split(sourcefilepath)[0] + os.path.splitext(sourcefilepath)[0][ len(os.path.split(sourcefilepath)[0]) : ] + extension
-        f = open(newpath, 'w')
-        for string in strings:
-            f.write(string)
-        f.close()
-    except:
-        print('Ошибка записи в файл.')
+        with open(newpath, 'w') as f:
+            for string in strings:
+                f.write(string)
+    except PermissionError:
+        print('Ошибка записи в файл. Файловая система доступна только для чтения.')
         sys.exit(2)
 
+
 def replace(strings, dictionary):
+    """Производит преобразования кода в псевдокод или обратно."""
     replaced = []
     for string in strings:
         string = ' ' + string + ' '
@@ -126,9 +154,11 @@ def replace(strings, dictionary):
         replaced.append(string)
     return replaced
 
-# О программе, как ей пользоваться.
+
 def about():
-    print(f'Транслятор Violetta2 v{version}. Вы пишете программу на "русском" Python, а транслятор переводит её в код на английском Python.\n\n\tИспользование: ./Violetta2.py [OPTIONS] FILEPATH\n\tОпции:\n\t\t-h, --help: выводит это сообщение\n\t\t--to-python3: транслирует файл в код на Python\n\t\t--to-violetta2: транслирует файл в код на Violetta2')
+    """Вывод информации о программе."""
+    print(f'Транслятор Violetta2 v{version}. Вы пишете программу на "русском" Python, а транслятор переводит её в код Python на английском.\n\n\tИспользование: ./Violetta2.py [OPTIONS] FILEPATH\n\tОпции:\n\t\t-h, --help: выводит это сообщение\n\t\t--to-python3: транслирует файл в код на Python\n\t\t--to-violetta2: транслирует файл в код на Violetta2')
+
 
 if __name__ == "__main__":
     if len(sys.argv) == 1:
