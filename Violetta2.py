@@ -177,8 +177,7 @@ def replace(strings, dictionary):
     opened = False
     for string in strings:
         string = ' ' + string + ' '
-        # мы не заменяем то, что находится в кавычках
-        stack = []
+        # stack = []
         lastIndex = -1
         # теперь можно заменять всё остальное
         for key in dictionary.keys():
