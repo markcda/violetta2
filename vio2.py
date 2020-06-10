@@ -154,8 +154,7 @@ def find_quotes(string, opened, lastIndex):
                 lastIndex = index
                 opened = True
         if not opened and string[index] == '#':
-            quotes.append((lastIndex, len(string) - 2))
-            opened = False
+            quotes.append((index, len(string) - 2))
             break
     if opened and lastIndex == -1:  # говорит о том, что кавычки были открыты на другой строке
         return -1, opened, lastIndex
