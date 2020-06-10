@@ -1,6 +1,6 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
-version = '0.0.3'
+version = '0.1.0'
 
 import sys
 import os.path
@@ -26,6 +26,7 @@ translations = {
     'float': 'дробное',
     'list': 'список',
     'tuple': 'кортеж',
+    'map': 'карта',
     'dict': 'словарь',
     'bool': 'логический',
     'eval': 'определить',
@@ -55,17 +56,20 @@ translations = {
     'raise': 'поднять',
     'exit': 'выйти',
     # работа с данными
-    'append': 'дополнить',
-    'remove': 'удалить',
-    'insert': 'вставить',
-    'items': 'элементы',
+    '.append': '.дополнить',
+    '.remove': '.удалить',
+    '.insert': '.вставить',
+    '.items': '.элементы',
+    '.split': '.разделить',
+    '.keys': '.ключи',
     # работа с классами
     'class': 'класс',
     'super': 'высший',
     # работа с файлами
     'open': 'открыть',
     'write': 'записать',
-    'close': 'закрыть'
+    '.close': '.закрыть',
+    'with': 'при помощи:'
 }
 
 
@@ -81,15 +85,15 @@ def shell():
             if opt not in (0, 1, 2):
                 raise ValueError
             if opt == 1:
-                print('\tВведите имя файла, содержащего код на Python 3:')
-                filename = input('\t>>> ')
+                print('Введите имя файла, содержащего код на Python 3:')
+                filename = input('>>> ')
                 toVioletta2(filename)
-                print('\tПреобразование завершено.')
+                print('Преобразование завершено.')
             elif opt == 2:
-                print('\tВведите имя файла, содержащего псевдокод Violetta2:')
-                filename = input('\t>>> ')
+                print('Введите имя файла, содержащего псевдокод Violetta2:')
+                filename = input('>>> ')
                 toPython3(filename)
-                print('\tПреобразование завершено.')
+                print('Преобразование завершено.')
             else:
                 return
         except ValueError:
@@ -128,7 +132,7 @@ def opener(filepath):
 def writer(sourcefilepath, strings, extension):
     """Записывает изменения в файл."""
     try:
-        newpath = os.path.split(sourcefilepath)[0] + os.path.splitext(sourcefilepath)[0][ len(os.path.split(sourcefilepath)[0]) : ] + extension
+        newpath = os.path.split(sourcefilepath)[0] + os.path.splitext(sourcefilepath)[0][len(os.path.split(sourcefilepath)[0]):] + extension
         with open(newpath, 'w') as f:
             for string in strings:
                 f.write(string)
@@ -137,27 +141,73 @@ def writer(sourcefilepath, strings, extension):
         sys.exit(2)
 
 
+def find_quotes(string, opened, lastIndex):
+    quotes = []
+    for index in range(1, len(string) - 2):
+        if string[index] in ('\'', '"'):
+            if string[index - 1] == '\\':
+                continue
+            if opened is True:
+                quotes.append((lastIndex, index - 1))
+                opened = False
+            else:
+                lastIndex = index
+                opened = True
+        if not opened and string[index] == '#':
+            quotes.append((lastIndex, len(string) - 2))
+            opened = False
+            break
+    if opened and lastIndex == -1:  # говорит о том, что кавычки были открыты на другой строке
+        return -1, opened, lastIndex
+    return quotes, opened, lastIndex
+
+
+def index_in_quotes(shift, index, key, string, quotes):
+    for rn in quotes:
+        if rn[0] <= index <= rn[1]:
+            shift = index + len(key)
+            index = string.find(key, shift)
+            return True, shift, index
+    return False, shift, index
+
+
 def replace(strings, dictionary):
     """Производит преобразования кода в псевдокод или обратно."""
-    replaced = []
+    replaced = []  # список строк исходного кода
+    opened = False
     for string in strings:
         string = ' ' + string + ' '
+        # мы не заменяем то, что находится в кавычках
+        stack = []
+        lastIndex = -1
+        # теперь можно заменять всё остальное
         for key in dictionary.keys():
             shift = 0
             index = string.find(key, shift)
             while index != -1:
-                if not string[index - 1].isalnum() and not string[index + len(key)].isalnum():
-                    string = string[ : index] + dictionary[key] + string[index + len(key) : ]
-                shift += len(key)
+                fq = find_quotes(string, opened, lastIndex)
+                if fq[0] != -1:
+                    quotes = fq[0]
+                    opened = fq[1]
+                    lastIndex = fq[2]
+                else:
+                    break
+                iiq = index_in_quotes(shift, index, key, string, quotes)
+                if iiq[0] is True:
+                    shift = iiq[1]
+                    index = iiq[2]
+                    continue
+                if (not string[index - 1].isalnum() and not string[index + len(key)].isalnum()) or (key[0] == '.' and not string[index + len(key)].isalnum()):
+                    string = string[:index] + dictionary[key] + string[index + len(key):]
+                shift = index + len(dictionary[key])
                 index = string.find(key, shift)
-        string = string[1 : -1]
-        replaced.append(string)
+        replaced.append(string[1:-1])
     return replaced
 
 
 def about():
     """Вывод информации о программе."""
-    print(f'Транслятор Violetta2 v{version}. Вы пишете программу на "русском" Python, а транслятор переводит её в код Python на английском.\n\n\tИспользование: ./Violetta2.py [OPTIONS] FILEPATH\n\tОпции:\n\t\t-h, --help: выводит это сообщение\n\t\t--to-python3: транслирует файл в код на Python\n\t\t--to-violetta2: транслирует файл в код на Violetta2')
+    print(f'Транслятор Violetta2 (v{version}). Вы пишете программу на "русском" Python, а транслятор переводит её в код Python на английском, и обратно.\n\n\tИспользование: ./Violetta2.py [OPTIONS] FILEPATH\n\tОпции:\n\t\t-h, --help: выводит это сообщение\n\t\t--to-python3: транслирует файл в код на Python [опция по умолчанию]\n\t\t--to-violetta2: транслирует файл в код на Violetta2')
 
 
 if __name__ == "__main__":
