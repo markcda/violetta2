@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-version = '0.1.0'
+version = '0.1.1'
 
 import sys
 import os.path
@@ -205,7 +205,7 @@ def replace(strings, dictionary):
 
 def about():
     """Вывод информации о программе."""
-    print(f'Транслятор Violetta2 (v{version}). Вы пишете программу на "русском" Python, а транслятор переводит её в код Python на английском, и обратно.\n\n\tИспользование: ./Violetta2.py [OPTIONS] FILEPATH\n\tОпции:\n\t\t-h, --help: выводит это сообщение\n\t\t--to-python3: транслирует файл в код на Python [опция по умолчанию]\n\t\t--to-violetta2: транслирует файл в код на Violetta2')
+    print(f'Транслятор Violetta2 (v{version}). Вы пишете программу на "русском" Python, а транслятор переводит её в код Python на английском, и обратно.\n\n\tИспользование: ./Violetta2.py [OPTIONS] FILEPATH\n\tОпции:\n\t\t-h, --help: выводит это сообщение\n\t\t-p, --to-python3: транслирует файл в код на Python [опция по умолчанию]\n\t\t-v, --to-violetta2: транслирует файл в код на Violetta2')
 
 
 if __name__ == "__main__":
@@ -214,9 +214,9 @@ if __name__ == "__main__":
     elif len(sys.argv) == 2 and sys.argv[1] != '-h' and sys.argv[1] != '--help':
         toPython3(sys.argv[1])
     elif len(sys.argv) == 3:
-        if sys.argv[1] == '--to-python3':
+        if sys.argv[1] in ('-p', '--to-python3'):
             toPython3(sys.argv[2])
-        elif sys.argv[1] == '--to-violetta2':
+        elif sys.argv[1] in ('-v', '--to-violetta2'):
             toVioletta2(sys.argv[2])
     else:
         about()
