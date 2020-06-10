@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-version = '0.1.1'
+version = '0.1.1-1'
 
 import sys
 import os.path
@@ -205,7 +205,7 @@ def replace(strings, dictionary):
 
 def about():
     """Вывод информации о программе."""
-    print(f'Транслятор Violetta2 (v{version}). Вы пишете программу на "русском" Python, а транслятор переводит её в код Python на английском, и обратно.\n\n\tИспользование: ./Violetta2.py [OPTIONS] FILEPATH\n\tОпции:\n\t\t-h, --help: выводит это сообщение\n\t\t-p, --to-python3: транслирует файл в код на Python [опция по умолчанию]\n\t\t-v, --to-violetta2: транслирует файл в код на Violetta2')
+    print(f'Транслятор Violetta2 (v{version}). Вы пишете программу на "русском" Python, а транслятор переводит её в код Python на английском, и обратно.\n\n\tИспользование: ./vio2.py [OPTIONS] FILEPATH\n\tОпции:\n\t\t-h, --help: выводит это сообщение\n\t\t-p, --to-python3: транслирует файл в код на Python [опция по умолчанию]\n\t\t-v, --to-violetta2: транслирует файл в код на Violetta2')
 
 
 if __name__ == "__main__":
